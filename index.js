@@ -30,7 +30,7 @@ class HouseService {
         return $.post(this.url, house);
     }
 
-    static  updateHouse(house) {
+    static updateHouse(house) {
         return $.ajax({
             url: this.url + `/${house._id}`,
             dataType: 'json',
@@ -52,8 +52,7 @@ class DOMManager {
     static houses;
 
     static getAllHouses() {
-        HouseService.getAllHouses().then(houses => this.render(houses));
-
+        HouseService.getAllHouses().then(houses => this.render(houses)).catch(error => console.error(error));
     }
 
     static render(houses) {
@@ -64,7 +63,7 @@ class DOMManager {
                 `<div id="${house._id}" class="card">
                     <div class="card-header">
                         <h2>${house.name}</h2>
-                        <button class="btn btn-danger" onclick="DOMManager.deletehouse('${house._id}')">Delete</button>
+                        <button class="btn btn-danger delete-house-btn" data-house-id="${house._id}">Delete</button>
                     </div>
                     <div class="card-body">
                         <div class="card">
@@ -75,8 +74,8 @@ class DOMManager {
                                 <div class="col-sm">
                                     <input type="text" id="${house._id}-room-area" class ="form-control" placeholder="Room Area">
                                 </div>
-                            </div
-                            <button id="${house._id}-new-room" onclick="DOMManager.addRoom('${house._id}')" class="btn btn-primary form-control">Add</button>
+                            </div>
+                            <button id="${house._id}-new-room" class="btn btn-primary form-control add-room-btn">Add</button>
                         </div>
                     </div>
                 </div> <br>`
@@ -86,12 +85,43 @@ class DOMManager {
                     `<p>
                         <span id="name-${room._id}"><strong>Name: </strong> ${room.name}</span>
                         <span id="area-${room._id}"><strong>Area: </strong> ${room.area}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteRoom('${house._id}', '${room._id}')">Delete Room</button>`
+                        <button class="btn btn-danger delete-room-btn" data-house-id="${house._id}" data-room-id="${room._id}">Delete Room</button>
+                    </p>`
                 );
             }
         }
     }
 
+    static addRoom(houseId) {
+        // Add room logic here
+    }
+
+    static deleteHouse(houseId) {
+        // Delete house logic here
+    }
+
+    static deleteRoom(houseId, roomId) {
+        // Delete room logic here
+    }
 }
 
-DOMManager.getAllHouses();
+$(document).ready(function () {
+    DOMManager.getAllHouses();
+
+    // Event delegation for dynamic elements
+    $('#app').on('click', '.delete-house-btn', function () {
+        const houseId = $(this).data('house-id');
+        DOMManager.deleteHouse(houseId);
+    });
+
+    $('#app').on('click', '.add-room-btn', function () {
+        const houseId = $(this).attr('id').split('-')[0];
+        DOMManager.addRoom(houseId);
+    });
+
+    $('#app').on('click', '.delete-room-btn', function () {
+        const houseId = $(this).data('house-id');
+        const roomId = $(this).data('room-id');
+        DOMManager.deleteRoom(houseId, roomId);
+    });
+});
